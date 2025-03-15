@@ -1,9 +1,8 @@
 import globals from "globals";
-import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
-import { fixupConfigRules } from "@eslint/compat";
 import configPrettier from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
@@ -15,22 +14,33 @@ export default [
       globals: { ...globals.browser, ...globals.node },
     },
   },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...fixupConfigRules(pluginReactConfig),
   {
-    plugins: ["prettier"],
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
     rules: {
-      "prettier/prettier": "error", // Ajoute une règle ESLint pour Prettier
-      "react/react-in-jsx-scope": "off", // Déjà configuré
+      "no-unused-vars": "error",
+      "no-undef": "error",
+      "no-console": "warn",
+    },
+  },
+  ...tseslint.configs.recommended,
+  pluginReactConfig,
+  {
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      "prettier/prettier": "error", // Adds ESLint rule for Prettier
+      "react/react-in-jsx-scope": "off", // Already configured
     },
   },
   {
     settings: {
       react: {
-        version: "detect", // Détecte automatiquement la version de React
+        version: "detect", // Automatically detects React version
       },
     },
   },
-  ...configPrettier, // Assure que les règles ESLint n'entrent pas en conflit avec Prettier
+  configPrettier, // Ensures ESLint rules don't conflict with Prettier
 ];
